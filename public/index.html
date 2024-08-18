@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Generate a <br><span>Random Password</span></h1>
+
+    <!-- Email Input Field -->
+    <div class="display">
+        <input type="email" id="email" placeholder="Enter your email" required>
+    </div>
+
+    <!-- Generate Button -->
+    <button id="generateBtn" onclick="generateAndSendPassword()"><img src="images/generate.png">Generate Password</button>
+
+    <!-- Password Input Field (for manual entry) -->
+    <div class="display" style="display: none;" id="passwordContainer">
+        <input type="text" id="password" placeholder="Enter the password received" required>
+    </div>
+
+    <!-- Submit Button -->
+    <button id="submitBtn" style="display: none;" onclick="submitPassword()"><img src="images/submit.png">Submit</button>
+</div>
+
+<script>
+    function generateAndSendPassword() {
+        const email = document.getElementById("email").value;
+
+        fetch('/generate-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email })
+        })
+        .then(response => response.text())
+        .then(data => {
+            alert(data);
+            // Hide the generate button and show the password input and submit button
+            document.getElementById("generateBtn").style.display = "none";
+            document.getElementById("passwordContainer").style.display = "block";
+            document.getElementById("submitBtn").style.display = "block";
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function submitPassword() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        fetch('/verify-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                response.text().then(text => alert(text));
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+</body>
+</html>
